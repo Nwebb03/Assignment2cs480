@@ -20,6 +20,13 @@ int main() {
         if (input == "exit") break; // exit conditon
         if (input.empty()) continue; // skip empty input
         commands = parser.parseInput(input); // Parse the input into commands
+        // for (const Command& cmd : commands) {
+        //     std::cout << "Command: " << cmd.executable;
+        //     if (cmd.hasArg) {
+        //         std::cout << " " << cmd.arg;
+        //     }
+        //     std::cout << std::endl;
+        // }
         executor.executePipeline(commands);   // Execute the parsed commands
     }
 

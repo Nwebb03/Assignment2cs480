@@ -2,7 +2,7 @@
 #include <sstream>   // for std::istringstream and std::getline
 #include <vector>    // for std::vector
 
-std::vector<Command> parseInput(const std::string& input) {
+std::vector<Command> Parser::parseInput(const std::string& input) {
         std::vector<Command> commands;
         std::vector<std::string> segments = splitByPipe(input); // Store each command between the pipe into a different string
 
@@ -25,7 +25,7 @@ std::vector<Command> parseInput(const std::string& input) {
     }
 
     // Splits the input string by the '|' character into a list of command segments.
-    std::vector<std::string> splitByPipe(const std::string& input) {
+    std::vector<std::string> Parser::splitByPipe(const std::string& input) {
         std::vector<std::string> segments;  // stores the split command segments
         std::string segment;                // holds each extracted substring
         std::istringstream stream(input);  // create a stream from the input string
