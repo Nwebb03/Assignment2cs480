@@ -11,16 +11,21 @@ std::vector<Command> commands; // List of commands to execute
 
 void Executor::executePipeline(const std::vector<Command> &commands) {
     size_t n = commands.size();
+    // If no commands, do nothing
     if (n == 0) return;
+    // If only one command, run it normally (no pipes needed)
     if (n == 1) {
         executeCommand(commands[0]);
         return;
     }
 
+    // Store child process IDs for waiting later
     std::vector<pid_t> pids;
-    int prev_fd = -1; // previous read end
+    int prev_fd = -1; // File descriptor for previous pipe's read end
+    // Loop through each command in the pipeline
     for (size_t i = 0; i < n; ++i) {
         int pipefd[2];
+        // If not the last command, create a pipe
         if (i < n - 1) {
             if (pipe(pipefd) == -1) {
                 perror("pipe failed");
@@ -28,37 +33,43 @@ void Executor::executePipeline(const std::vector<Command> &commands) {
             }
         }
 
-        pid_t pid = fork();
+        pid_t pid = fork(); // Fork a child process
         if (pid == 0) {
-            // Child process
+            // --- Child process ---
+            // If not the first command, redirect stdin to previous pipe's read end
             if (i > 0) {
                 dup2(prev_fd, 0); // stdin from previous pipe
                 close(prev_fd);
             }
+            // If not the last command, redirect stdout to current pipe's write end
             if (i < n - 1) {
-                close(pipefd[0]); // close read end
+                close(pipefd[0]); // close unused read end
                 dup2(pipefd[1], 1); // stdout to pipe
                 close(pipefd[1]);
             }
-            // Removed incorrect close loop here
+            // Build argv and execute the command
             char **argv = buildArgv(commands[i]);
             execvp(argv[0], argv);
+            // If execvp fails, print error and exit child
             perror("execvp failed");
             exit(1);
         } else if (pid > 0) {
-            // Parent process
-            pids.push_back(pid);
+            // --- Parent process ---
+            pids.push_back(pid); // Save child PID
+            // Close previous pipe's read end (no longer needed)
             if (i > 0) close(prev_fd);
+            // If not the last command, save current pipe's read end for next command
             if (i < n - 1) {
-                close(pipefd[1]); // close write end
+                close(pipefd[1]); // close unused write end
                 prev_fd = pipefd[0]; // save read end for next command
             }
         } else {
+            // Fork failed
             perror("fork failed");
             return;
         }
     }
-    // Wait for all children
+    // Wait for all child processes to finish
     for (pid_t pid : pids) {
         int status;
         waitpid(pid, &status, 0);
