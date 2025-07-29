@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <iostream> // for std::cout
+#include <readline/readline.h>
+#include <readline/history.h>
 
 using std::string;
 using std::vector;
@@ -15,19 +17,27 @@ int main() {
     vector<Command> commands; // To hold parsed commands
 
     while (true) {
-        printPrompt();
-        input = getUserInput();
-        if (input == "exit") break; // exit conditon
-        if (input.empty()) continue; // skip empty input
-        commands = parser.parseInput(input); // Parse the input into commands
-        // for (const Command& cmd : commands) {
-        //     std::cout << "Command: " << cmd.executable;
-        //     if (cmd.hasArg) {
-        //         std::cout << " " << cmd.arg;
-        //     }
-        //     std::cout << std::endl;
-        // }
-        executor.executePipeline(commands);   // Execute the parsed commands
+        // Added history to shell
+        // Readline handles the prompt, line editing and arrow key history navigation
+        std::string prompt = getUsername() + "% ";
+        char* raw_input = readline(prompt.c_str());
+        if (!raw_input) break; // EOF (Ctrl+D) exits the shell
+        input = string(raw_input);
+        free(raw_input);
+
+        // Add non-empty input to history (enables up/down arrow recall)
+        if (!input.empty()) {
+            add_history(input.c_str());
+        }
+
+        // Exit shell if user types "exit"
+        if (input == "exit") break;
+        // Skip empty input (just pressing Enter)
+        if (input.empty()) continue;
+
+        // Parse the input into commands and execute them (handles pipes, etc.)
+        commands = parser.parseInput(input);
+        executor.executePipeline(commands);
     }
 
     return 0;

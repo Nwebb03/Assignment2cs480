@@ -8,7 +8,7 @@ OBJ = $(SRC:.cpp=.o)
 all: $(TARGET)
 
 $(TARGET): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lreadline
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
