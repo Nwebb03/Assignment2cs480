@@ -26,8 +26,9 @@ void Executor::executePipeline(const std::vector<Command> &commands) {
     for (size_t i = 0; i < n; ++i) {
         int pipefd[2];
         // If not the last command, create a pipe
+        // Not necessary for the last command, because the last command’s input comes from the read end of the previous pipe (set up by the previous command).
         if (i < n - 1) {
-            if (pipe(pipefd) == -1) {
+            if (pipe(pipefd) == -1) { // creates a pipe for the command, if it returns 0, it means it is successful
                 perror("pipe failed");
                 return;
             }
@@ -36,6 +37,8 @@ void Executor::executePipeline(const std::vector<Command> &commands) {
         pid_t pid = fork(); // Fork a child process
         if (pid == 0) {
             // --- Child process ---
+            // This part connects the child processes together using pipes
+
             // If not the first command, redirect stdin to previous pipe's read end
             if (i > 0) {
                 dup2(prev_fd, 0); // stdin from previous pipe
@@ -44,7 +47,7 @@ void Executor::executePipeline(const std::vector<Command> &commands) {
             // If not the last command, redirect stdout to current pipe's write end
             if (i < n - 1) {
                 close(pipefd[0]); // close unused read end
-                dup2(pipefd[1], 1); // stdout to pipe
+                dup2(pipefd[1], 1); // stdout (1) to write end of pipe
                 close(pipefd[1]);
             }
             // Build argv and execute the command
@@ -70,6 +73,7 @@ void Executor::executePipeline(const std::vector<Command> &commands) {
         }
     }
     // Wait for all child processes to finish
+    // ex: if a sort is the last command and is taking a long time, it will wait for the sort to finish before showing cssc0000% prompt again
     for (pid_t pid : pids) {
         int status;
         waitpid(pid, &status, 0);
