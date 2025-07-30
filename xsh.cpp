@@ -17,8 +17,7 @@ int main() {
     vector<Command> commands; // To hold parsed commands
 
     while (true) {
-        // Added history to shell
-        // Readline handles the prompt, line editing and arrow key history navigation
+        // readline handles the prompt, line editing, and arrow key history navigation
         std::string prompt = getUsername() + "% ";
         char* raw_input = readline(prompt.c_str());
         if (!raw_input) break; // EOF (Ctrl+D) exits the shell
@@ -35,8 +34,14 @@ int main() {
         // Skip empty input (just pressing Enter)
         if (input.empty()) continue;
 
-        // Parse the input into commands and execute them (handles pipes, etc.)
+        // Parse the input into commands
         commands = parser.parseInput(input);
+        // Validate input according to assignment rules
+        if (!parser.validateCommands(commands)) {
+            std::cerr << "Error: Invalid input format. Only one argument per command and no empty commands allowed." << std::endl;
+            continue;
+        }
+        // Execute the parsed commands
         executor.executePipeline(commands);
     }
 

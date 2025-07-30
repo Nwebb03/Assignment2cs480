@@ -9,11 +9,14 @@ struct Command {
     std::string executable;
     std::string arg;
     bool hasArg;
+    std::string original; // Store the original segment for validation
 };
 
 class Parser {
 public:
     std::vector<Command> parseInput(const std::string& input);
+    // Returns true if the command vector is valid according to assignment rules
+    bool validateCommands(const std::vector<Command>& commands) const;
 private:
     // Splits the input string by the '|' character into a list of command segments.
     std::vector<std::string> splitByPipe(const std::string& input);

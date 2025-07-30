@@ -8,6 +8,7 @@ std::vector<Command> Parser::parseInput(const std::string& input) {
 
         for (const std::string& segment : segments) {
             Command cmd; // create a new command structure
+            cmd.original = segment; // Save the original segment
             std::istringstream ss(segment); // create a stream for the segment
             ss >> cmd.executable;
 
@@ -41,8 +42,32 @@ std::vector<Command> Parser::parseInput(const std::string& input) {
             if (start != std::string::npos && end != std::string::npos) {
                 // Extract the trimmed substring and add to segments
                 segments.push_back(segment.substr(start, end - start + 1));
+            } else {
+                // If the segment is empty or only whitespace, add an empty string
+                segments.push_back("");
             }
         }
-
+        // If the input ends with a pipe, add an empty segment to represent the missing command
+        if (!input.empty() && input.back() == '|') {
+            segments.push_back("");
+        }
         return segments; // return the list of clean, trimmed command segments
     }
+
+// Returns true if the command vector is valid according to assignment rules
+bool Parser::validateCommands(const std::vector<Command>& commands) const {
+    for (const Command& cmd : commands) {
+        // Command must have an executable and original segment must not be empty or whitespace
+        std::string trimmed = cmd.original;
+        trimmed.erase(0, trimmed.find_first_not_of(" \t\n\r"));
+        trimmed.erase(trimmed.find_last_not_of(" \t\n\r") + 1);
+        if (trimmed.empty() || cmd.executable.empty()) return false;
+        // Strictly check for more than one argument using the original segment
+        std::istringstream ss(cmd.original);
+        std::string word1, word2, word3;
+        ss >> word1; // executable
+        ss >> word2; // argument (if any)
+        if (ss >> word3) return false; // more than one argument
+    }
+    return true;
+}
