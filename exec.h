@@ -1,3 +1,14 @@
+//## Names
+//- Nate Webb cssc1467
+//- Noah Bakayou cssc1409
+
+//## Class Information
+//- CS480-02-Sum202
+
+//## Assignment Information
+//- Assignment #2 - basic shell
+
+//Filename: exec.h
 #ifndef EXEC_H
 #define EXEC_H
 

@@ -1,3 +1,14 @@
+//## Names
+//- Nate Webb cssc1467
+//- Noah Bakayou cssc1409
+
+//## Class Information
+//- CS480-02-Sum202
+
+//## Assignment Information
+//- Assignment #2 - basic shell
+
+//Filename: parser.cpp
 #include "parser.h"
 #include <sstream>   // for std::istringstream and std::getline
 #include <vector>    // for std::vector

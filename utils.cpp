@@ -1,3 +1,15 @@
+//## Names
+//- Nate Webb cssc1467
+//- Noah Bakayou cssc1409
+
+//## Class Information
+//- CS480-02-Sum202
+
+//## Assignment Information
+//- Assignment #2 - basic shell
+
+//Filename: utils.cpp
+
 #include "utils.h"
 #include <iostream>
 #include <unistd.h>

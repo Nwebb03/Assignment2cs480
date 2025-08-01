@@ -1,3 +1,15 @@
+//## Names
+//- Nate Webb cssc1467
+//- Noah Bakayou cssc1409
+
+//## Class Information
+//- CS480-02-Sum202
+
+//## Assignment Information
+//- Assignment #2 - basic shell
+
+//Filename: xsh.cpp
+
 #include "utils.h"
 #include "exec.h"
 #include "parser.h"
@@ -45,5 +57,5 @@ int main() {
         executor.executePipeline(commands);
     }
 
-    return 0;
+    exit(0);
 }
